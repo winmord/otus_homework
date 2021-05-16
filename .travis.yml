@@ -1,0 +1,13 @@
+dist: xenial
+language: cpp
+compiler: 
+- gcc
+install:
+- pip install conan
+- conan user
+script:
+- conan install .
+- cmake .
+- cmake --build .
+- cmake --build . --target test
+- cmake --build . --target package
