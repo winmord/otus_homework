@@ -8,9 +8,6 @@ install:
 script:
 - mkdir build
 - cd build
-- pwd
 - conan install ..
 - cmake ..
-- ls
-- cmake --build .
-- cmake --build . --target test
+- make
