@@ -6,8 +6,6 @@ install:
 - pip install conan
 - conan user
 script:
-- mkdir build
-- cd build
-- conan install ..
-- cmake ..
+- conan install .
+- cmake .
 - make
