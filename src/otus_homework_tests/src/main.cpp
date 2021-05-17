@@ -45,7 +45,7 @@ TEST_CASE("i_movable position getting is not available test")
 	
 	move_command cmd(pointer_to_movable);
 
-	REQUIRE_THROWS_WITH(cmd.execute(), "Position is not available");
+	REQUIRE_THROWS_WITH(cmd.execute(), "command exception");
 }
 
 TEST_CASE("i_movable velocity getting is not available test")
@@ -60,7 +60,7 @@ TEST_CASE("i_movable velocity getting is not available test")
 	
 	move_command cmd(pointer_to_movable);
 
-	REQUIRE_THROWS_WITH(cmd.execute(), "Velocity is not available");
+	REQUIRE_THROWS_WITH(cmd.execute(), "command exception");
 }
 
 TEST_CASE("i_movable position setting is not available test")
@@ -80,7 +80,7 @@ TEST_CASE("i_movable position setting is not available test")
 
 	move_command cmd(pointer_to_movable);
 	
-	REQUIRE_THROWS_WITH(cmd.execute(), "Position setting is not available");
+	REQUIRE_THROWS_WITH(cmd.execute(), "command exception");
 }
 
 TEST_CASE("i_rotatable rotating test")
@@ -120,7 +120,7 @@ TEST_CASE("i_rotatable direction getting is not available test")
 	
 	rotate_command cmd(pointer_to_rotatable);
 
-	REQUIRE_THROWS_WITH(cmd.execute(), "Direction is not available");	
+	REQUIRE_THROWS_WITH(cmd.execute(), "command exception");	
 }
 
 TEST_CASE("i_rotatable angular velocity getting is not available test")
@@ -136,7 +136,7 @@ TEST_CASE("i_rotatable angular velocity getting is not available test")
 
 	rotate_command cmd(pointer_to_rotatable);
 
-	REQUIRE_THROWS_WITH(cmd.execute(), "Angular velocity is not available");
+	REQUIRE_THROWS_WITH(cmd.execute(), "command exception");
 }
 
 TEST_CASE("i_rotatable max directions getting is not available test")
@@ -152,7 +152,7 @@ TEST_CASE("i_rotatable max directions getting is not available test")
 
 	rotate_command cmd(pointer_to_rotatable);
 
-	REQUIRE_THROWS_WITH(cmd.execute(), "Max directions is not available");
+	REQUIRE_THROWS_WITH(cmd.execute(), "command exception");
 }
 
 TEST_CASE("i_rotatable direction setting is not available test")
@@ -173,5 +173,5 @@ TEST_CASE("i_rotatable direction setting is not available test")
 
 	rotate_command cmd(pointer_to_rotatable);
 	
-	REQUIRE_THROWS_WITH(cmd.execute(), "Direction setting is not available");
+	REQUIRE_THROWS_WITH(cmd.execute(), "command exception");
 }

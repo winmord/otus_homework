@@ -4,10 +4,6 @@
 
 namespace tank_battle_server
 {
-	movement_vector::movement_vector()
-	{
-	}
-
 	movement_vector::movement_vector(std::vector<int> body)
 		: body_(std::move(body))
 	{
