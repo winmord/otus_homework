@@ -21,14 +21,25 @@ include_directories(${otus_homework_SOURCE_DIR}/include)
 
 set(SOURCE_FILES
 	include/otus_homework/adapters/movable_adapter.hpp
+	include/otus_homework/adapters/rotatable_adapter.hpp
+
 	include/otus_homework/commands/move_command.hpp
+	include/otus_homework/commands/rotate_command.hpp
+
 	include/otus_homework/interfaces/i_command.hpp
 	include/otus_homework/interfaces/i_movable.hpp
+	include/otus_homework/interfaces/i_rotatable.hpp
 	include/otus_homework/interfaces/i_uobject.hpp
+
 	include/otus_homework/movement_vector.hpp
 	include/otus_homework/otus_homework_api.hpp
+
 	src/adapters/movable_adapter.cpp
+	src/adapters/rotatable_adapter.cpp
+
 	src/commands/move_command.cpp
+	src/commands/rotate_command.cpp
+
 	src/movement_vector.cpp
 	)
 
