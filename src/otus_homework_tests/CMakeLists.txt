@@ -17,3 +17,4 @@ source_group(TREE ${PROJECT_SOURCE_DIR} FILES ${SOURCE_FILES})
 	
 add_executable(otus_homework_tests ${SOURCE_FILES})
 target_link_libraries(otus_homework_tests otus_homework ${CONAN_LIBS})
+add_test(NAME "otus_homework_tests" COMMAND otus_homework_tests)

@@ -11,15 +11,8 @@ include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()
 
 add_subdirectory(src/otus_homework)
-add_subdirectory(src/otus_homework_tests)
 
 enable_testing()
-add_test(NAME "otus_homework_tests_release"
-        COMMAND otus_homework_tests
-        CONFIGURATIONS Release)
-
-add_test(NAME "otus_homework_tests_debug"
-        COMMAND otus_homework_tests
-        CONFIGURATIONS Debug)
+add_subdirectory(src/otus_homework_tests)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS 1)  
