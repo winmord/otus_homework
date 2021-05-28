@@ -12,6 +12,7 @@ addons:
 install:
 - pip install conan
 - conan user
+- conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan
 script:
 - export CC=gcc-7
 - export CXX=g++-7
