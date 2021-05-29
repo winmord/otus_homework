@@ -18,7 +18,7 @@ install:
 script:
 - export CC=gcc-7
 - export CXX=g++-7
-- sudo conan install .
+- conan install .
 - cmake .
 - make
 - ctest -C Debug
