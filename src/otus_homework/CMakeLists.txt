@@ -31,6 +31,7 @@ set(SOURCE_FILES
 	include/otus_homework/interfaces/i_rotatable.hpp
 	include/otus_homework/interfaces/i_uobject.hpp
 
+	include/otus_homework/command_executor.hpp
 	include/otus_homework/movement_vector.hpp
 	include/otus_homework/otus_homework_api.hpp
 
@@ -40,6 +41,7 @@ set(SOURCE_FILES
 	src/commands/move_command.cpp
 	src/commands/rotate_command.cpp
 
+	src/command_executor.cpp
 	src/movement_vector.cpp
 	)
 
