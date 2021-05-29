@@ -8,6 +8,9 @@
 #include <otus_homework/commands/rotate_command.hpp>
 #include <otus_homework/command_executor.hpp>
 
+#include <mutex>
+#include <condition_variable>
+
 using namespace fakeit;
 using namespace tank_battle_server;
 
@@ -179,14 +182,19 @@ TEST_CASE("i_rotatable direction setting is not available test")
 	REQUIRE_THROWS_WITH(cmd.execute(), "command exception");
 }
 
-TEST_CASE("command_executor test")
+TEST_CASE("command_executor is running test")
 {
-	auto evt{false};
+	auto is_executed{false};
+
+	std::mutex m;
+	std::condition_variable cv;
 
 	Mock<i_command> i_command_mock;
 	When(Method(i_command_mock, execute)).AlwaysDo([&]()
 		{
-			evt = true;
+			is_executed = true;
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
+			cv.notify_one();
 		}
 	);
 
@@ -199,8 +207,70 @@ TEST_CASE("command_executor test")
 	command_queue.push(pointer_to_command);
 
 	command_executor cmd_executor(command_queue);
+	
+	std::unique_lock<std::mutex> locker(m);
 
-	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+	while (!is_executed)
+	{
+		cv.wait(locker);
+	}
 
-	REQUIRE(evt == true);
+	REQUIRE(is_executed == true);
+}
+
+TEST_CASE("command_executor hard_stop test")
+{
+	Mock<i_command> i_command_mock;
+	When(Method(i_command_mock, execute)).AlwaysDo([&]()
+		{
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		}
+	);
+
+	const auto commands_count = 10;
+	lf::spsc_queue<std::shared_ptr<i_command>> command_queue(commands_count);
+
+	const auto pointer_to_command = std::shared_ptr<i_command>(&i_command_mock(), [](...)
+		{
+		});
+
+	for (auto command_number = 0; command_number < commands_count; command_number++)
+	{
+		command_queue.push(pointer_to_command);
+	}
+
+	command_executor cmd_executor(command_queue);
+	
+	std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	
+	cmd_executor.hard_stop();
+
+	REQUIRE(!command_queue.empty());
+}
+
+TEST_CASE("command_executor soft_stop test")
+{
+	Mock<i_command> i_command_mock;
+	When(Method(i_command_mock, execute)).AlwaysDo([&]()
+		{
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		}
+	);
+
+	const auto commands_count = 10;
+	lf::spsc_queue<std::shared_ptr<i_command>> command_queue(commands_count);
+
+	const auto pointer_to_command = std::shared_ptr<i_command>(&i_command_mock(), [](...)
+		{
+		});
+
+	for (auto command_number = 0; command_number < commands_count; command_number++)
+	{
+		command_queue.push(pointer_to_command);
+	}
+
+	command_executor cmd_executor(command_queue);
+	cmd_executor.soft_stop();
+
+	REQUIRE(command_queue.empty());
 }
