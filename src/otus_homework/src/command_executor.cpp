@@ -2,9 +2,10 @@
 
 namespace tank_battle_server
 {
-	command_executor::command_executor(boost::lockfree::spsc_queue<std::shared_ptr<i_command>>& command_queue)
+	command_executor::command_executor(std::shared_ptr<lf::spsc_queue<std::shared_ptr<i_command>>> command_queue)
+		: command_queue_(std::move(command_queue))
 	{
-		start(command_queue);
+		start();
 	}
 
 	void command_executor::hard_stop()
@@ -12,14 +13,28 @@ namespace tank_battle_server
 		stop();
 	}
 
-	void command_executor::soft_stop()
+	void command_executor::soft_stop() const
 	{
-		std::unique_lock<std::mutex> locker(this->soft_stop_locker_);
-
-		while (this->is_started_)
+		class soft_stop_command : public i_command
 		{
-			this->soft_stop_cv_.wait(locker);
+		public:
+			void execute() override
+			{
+				throw std::runtime_error("soft stop");
+			}
+		};
+
+		const auto soft_stop_cmd = std::make_shared<soft_stop_command>();
+
+		while (!this->command_queue_->push(soft_stop_cmd))
+		{
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		}
+	}
+
+	bool command_executor::is_started() const
+	{
+		return this->is_started_;
 	}
 
 	command_executor::~command_executor()
@@ -27,33 +42,30 @@ namespace tank_battle_server
 		stop();
 		this->command_executor_thread_.join();
 	}
-	
-	void command_executor::start(lf::spsc_queue<std::shared_ptr<i_command>>& command_queue)
+
+	void command_executor::start()
 	{
 		this->is_started_ = true;
-		
+
 		this->command_executor_thread_ = std::thread([&]()
 			{
 				while (this->is_started_)
 				{
-					try
-					{		
-						command_queue.consume_one([](std::shared_ptr<i_command> cmd)
+					this->command_queue_->consume_one([&](std::shared_ptr<i_command> const& cmd)
+						{
+							try
 							{
 								cmd->execute();
 							}
-						);
-
-						if (command_queue.empty())
-						{
-							stop();
-							this->soft_stop_cv_.notify_one();
+							catch (std::exception& exc)
+							{
+								if (exc.what() == std::string("soft stop"))
+								{
+									stop();
+								}
+							}
 						}
-					}
-					catch(...)
-					{
-						
-					}
+					);
 				}
 			}
 		);

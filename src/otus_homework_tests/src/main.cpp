@@ -185,35 +185,35 @@ TEST_CASE("i_rotatable direction setting is not available test")
 TEST_CASE("command_executor is running test")
 {
 	auto is_executed{false};
-
-	std::mutex m;
-	std::condition_variable cv;
+	std::condition_variable execution_condition;
 
 	Mock<i_command> i_command_mock;
 	When(Method(i_command_mock, execute)).AlwaysDo([&]()
 		{
 			is_executed = true;
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));
-			cv.notify_one();
+			execution_condition.notify_one();
 		}
 	);
 
-	lf::spsc_queue<std::shared_ptr<i_command>> command_queue(1);
+	auto command_queue = std::make_shared<lf::spsc_queue<std::shared_ptr<i_command>>>(1);
 
 	const auto pointer_to_command = std::shared_ptr<i_command>(&i_command_mock(), [](...)
 	{
 	});
 
-	command_queue.push(pointer_to_command);
+	command_queue->push(pointer_to_command);
 
 	command_executor cmd_executor(command_queue);
-	
+
+	std::mutex m;
 	std::unique_lock<std::mutex> locker(m);
 
-	while (!is_executed)
-	{
-		cv.wait(locker);
-	}
+	execution_condition.wait_for(locker, std::chrono::milliseconds(1000), [&]()
+	                             {
+		                             return is_executed;
+	                             }
+	);
 
 	REQUIRE(is_executed == true);
 }
@@ -228,24 +228,25 @@ TEST_CASE("command_executor hard_stop test")
 	);
 
 	const auto commands_count = 10;
-	lf::spsc_queue<std::shared_ptr<i_command>> command_queue(commands_count);
+	auto command_queue = std::make_shared<lf::spsc_queue<std::shared_ptr<i_command>>>(commands_count);
 
 	const auto pointer_to_command = std::shared_ptr<i_command>(&i_command_mock(), [](...)
-		{
-		});
+	{
+	});
 
 	for (auto command_number = 0; command_number < commands_count; command_number++)
 	{
-		command_queue.push(pointer_to_command);
+		command_queue->push(pointer_to_command);
 	}
 
 	command_executor cmd_executor(command_queue);
-	
+
 	std::this_thread::sleep_for(std::chrono::milliseconds(100));
-	
+
 	cmd_executor.hard_stop();
 
-	REQUIRE(!command_queue.empty());
+	REQUIRE_FALSE(cmd_executor.is_started());
+	REQUIRE(!command_queue->empty());
 }
 
 TEST_CASE("command_executor soft_stop test")
@@ -258,19 +259,42 @@ TEST_CASE("command_executor soft_stop test")
 	);
 
 	const auto commands_count = 10;
-	lf::spsc_queue<std::shared_ptr<i_command>> command_queue(commands_count);
+	auto command_queue = std::make_shared<lf::spsc_queue<std::shared_ptr<i_command>>>(commands_count);
 
 	const auto pointer_to_command = std::shared_ptr<i_command>(&i_command_mock(), [](...)
-		{
-		});
+	{
+	});
 
 	for (auto command_number = 0; command_number < commands_count; command_number++)
 	{
-		command_queue.push(pointer_to_command);
+		command_queue->push(pointer_to_command);
 	}
 
-	command_executor cmd_executor(command_queue);
+	const command_executor cmd_executor(command_queue);
 	cmd_executor.soft_stop();
 
-	REQUIRE(command_queue.empty());
+	auto executor_is_started{true};
+	std::condition_variable executor_finish_condition;
+	
+	auto executor_finish_check = std::thread([&]()
+		{
+			while(executor_is_started)
+			{
+				executor_is_started = cmd_executor.is_started();
+				if (!executor_is_started) executor_finish_condition.notify_one();
+			}
+		}
+	);
+	executor_finish_check.detach();
+	
+	std::mutex m;
+	std::unique_lock<std::mutex> locker(m);
+
+	executor_finish_condition.wait(locker, [&]()
+		{
+			return !executor_is_started;
+		}
+	);
+
+	REQUIRE(command_queue->empty());
 }

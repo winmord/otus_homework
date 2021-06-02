@@ -16,21 +16,21 @@ namespace tank_battle_server
 	class command_executor
 	{
 	public:
-		explicit command_executor(lf::spsc_queue<std::shared_ptr<i_command>>& command_queue);
+		explicit command_executor(std::shared_ptr<lf::spsc_queue<std::shared_ptr<i_command>>> command_queue);
 
 		void hard_stop();
-		void soft_stop();
+		void soft_stop() const;
+
+		bool is_started() const;
 		
 		~command_executor();
 
 	private:
-		void start(lf::spsc_queue<std::shared_ptr<i_command>>& command_queue);
+		void start();
 		void stop();
-		
-		bool is_started_{false};
 
+		std::shared_ptr<lf::spsc_queue<std::shared_ptr<i_command>>> command_queue_;
 		std::thread command_executor_thread_;
-		std::mutex soft_stop_locker_;
-		std::condition_variable soft_stop_cv_;
+		bool is_started_{false};
 	};
 }
