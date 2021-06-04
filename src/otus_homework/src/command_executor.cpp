@@ -1,35 +1,13 @@
 #include "otus_homework/command_executor.hpp"
 
+#include <future>
+
 namespace tank_battle_server
 {
-	command_executor::command_executor(std::shared_ptr<lf::spsc_queue<std::shared_ptr<i_command>>> command_queue)
+	command_executor::command_executor(std::shared_ptr<blocking_queue<std::shared_ptr<i_command>>> command_queue)
 		: command_queue_(std::move(command_queue))
 	{
 		start();
-	}
-
-	void command_executor::hard_stop()
-	{
-		stop();
-	}
-
-	void command_executor::soft_stop() const
-	{
-		class soft_stop_command : public i_command
-		{
-		public:
-			void execute() override
-			{
-				throw std::runtime_error("soft stop");
-			}
-		};
-
-		const auto soft_stop_cmd = std::make_shared<soft_stop_command>();
-
-		while (!this->command_queue_->push(soft_stop_cmd))
-		{
-			std::this_thread::sleep_for(std::chrono::milliseconds(10));
-		}
 	}
 
 	bool command_executor::is_started() const
@@ -51,21 +29,20 @@ namespace tank_battle_server
 			{
 				while (this->is_started_)
 				{
-					this->command_queue_->consume_one([&](std::shared_ptr<i_command> const& cmd)
-						{
-							try
-							{
-								cmd->execute();
-							}
-							catch (std::exception& exc)
-							{
-								if (exc.what() == std::string("soft stop"))
-								{
-									stop();
-								}
-							}
-						}
-					);
+					try
+					{
+						const auto cmd = this->command_queue_->pop();
+						cmd->execute();
+					}
+					catch (std::exception& exc)
+					{
+						const auto* const what = exc.what();
+						
+						process_hard_stop(what);
+						process_soft_stop(what);
+					}
+
+					check_soft_stop();
 				}
 			}
 		);
@@ -74,5 +51,40 @@ namespace tank_battle_server
 	void command_executor::stop()
 	{
 		this->is_started_ = false;
+	}
+
+	void command_executor::process_hard_stop(std::string const& what)
+	{
+		if (what == std::string("hard stop"))
+		{
+			stop();
+		}
+	}
+
+	void command_executor::process_soft_stop(std::string const& what)
+	{
+		if (what == std::string("soft stop"))
+		{
+			this->soft_stopping_in_process_ = true;
+
+			auto soft_stop_by_timeout = std::thread([&]()
+			{
+				std::this_thread::sleep_for(std::chrono::seconds(1));
+				stop();
+			});
+
+			soft_stop_by_timeout.detach();
+		}
+	}
+
+	void command_executor::check_soft_stop()
+	{
+		if (this->soft_stopping_in_process_)
+		{
+			if (this->command_queue_->empty())
+			{
+				stop();
+			}
+		}
 	}
 }
