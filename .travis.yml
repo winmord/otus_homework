@@ -7,12 +7,15 @@ addons:
     sources:
       - ubuntu-toolchain-r-test
     packages:
+      - python3
+      - python3-pip
       - gcc-7
       - g++-7
-install:
-- pip install conan
-- conan user
 script:
+- sudo apt-get install -y python3-setuptools
+- sudo apt-get install -y python3-pip
+- pip3 install conan
+- conan user
 - export CC=gcc-7
 - export CXX=g++-7
 - conan install .
