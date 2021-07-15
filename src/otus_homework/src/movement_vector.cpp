@@ -4,6 +4,7 @@
 
 #include <stdexcept>
 #include <string>
+#include <math.h>
 
 namespace tank_battle_server
 {
