@@ -16,6 +16,7 @@ set(SOURCE_FILES
 	src/main.cpp
 	src/month1_lesson3_homework_tests.cpp
 	src/month1_lesson4_homework_tests.cpp
+	src/month3_lesson12_homework_tests.cpp
    )
 	
 source_group(TREE ${PROJECT_SOURCE_DIR} FILES ${SOURCE_FILES})
