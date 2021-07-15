@@ -20,28 +20,45 @@ endif ()
 include_directories(${otus_homework_SOURCE_DIR}/include)
 
 set(SOURCE_FILES
+	include/otus_homework/adapters/fuel_burnable_adapter.hpp
+	include/otus_homework/adapters/fuel_checkable_adapter.hpp
 	include/otus_homework/adapters/movable_adapter.hpp
 	include/otus_homework/adapters/rotatable_adapter.hpp
+	include/otus_homework/adapters/velocity_changable_adapter.hpp
 
+	include/otus_homework/commands/burn_fuel_command.hpp
+	include/otus_homework/commands/change_velocity_command.hpp
+	include/otus_homework/commands/check_fuel_command.hpp
 	include/otus_homework/commands/hard_stop_command.hpp
+	include/otus_homework/commands/macro_command.hpp
 	include/otus_homework/commands/move_command.hpp
 	include/otus_homework/commands/rotate_command.hpp
 	include/otus_homework/commands/soft_stop_command.hpp
 
 	include/otus_homework/interfaces/i_command.hpp
+	include/otus_homework/interfaces/i_fuel_burnable.hpp
+	include/otus_homework/interfaces/i_fuel_checkable.hpp
 	include/otus_homework/interfaces/i_movable.hpp
 	include/otus_homework/interfaces/i_rotatable.hpp
 	include/otus_homework/interfaces/i_uobject.hpp
+	include/otus_homework/interfaces/i_velocity_changable.hpp
 
 	include/otus_homework/blocking_queue.hpp
 	include/otus_homework/command_executor.hpp
 	include/otus_homework/movement_vector.hpp
 	include/otus_homework/otus_homework_api.hpp
 
+	src/adapters/fuel_burnable_adapter.cpp
+	src/adapters/fuel_checkable_adapter.cpp
 	src/adapters/movable_adapter.cpp
 	src/adapters/rotatable_adapter.cpp
+	src/adapters/velocity_changable_adapter.cpp
 
+	src/commands/burn_fuel_command.cpp
+	src/commands/change_velocity_command.cpp
+	src/commands/check_fuel_command.cpp
 	src/commands/hard_stop_command.cpp
+	src/commands/macro_command.cpp
 	src/commands/move_command.cpp
 	src/commands/rotate_command.cpp
 	src/commands/soft_stop_command.cpp
