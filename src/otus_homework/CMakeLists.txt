@@ -30,6 +30,7 @@ set(SOURCE_FILES
 	include/otus_homework/commands/change_velocity_command.hpp
 	include/otus_homework/commands/check_fuel_command.hpp
 	include/otus_homework/commands/hard_stop_command.hpp
+	include/otus_homework/commands/ioc_register_command.hpp
 	include/otus_homework/commands/macro_command.hpp
 	include/otus_homework/commands/move_command.hpp
 	include/otus_homework/commands/rotate_command.hpp
@@ -42,6 +43,8 @@ set(SOURCE_FILES
 	include/otus_homework/interfaces/i_rotatable.hpp
 	include/otus_homework/interfaces/i_uobject.hpp
 	include/otus_homework/interfaces/i_velocity_changable.hpp
+
+	include/otus_homework/utils/ioc_container.hpp
 
 	include/otus_homework/blocking_queue.hpp
 	include/otus_homework/command_executor.hpp
@@ -58,6 +61,7 @@ set(SOURCE_FILES
 	src/commands/change_velocity_command.cpp
 	src/commands/check_fuel_command.cpp
 	src/commands/hard_stop_command.cpp
+	src/commands/ioc_register_command.cpp
 	src/commands/macro_command.cpp
 	src/commands/move_command.cpp
 	src/commands/rotate_command.cpp
