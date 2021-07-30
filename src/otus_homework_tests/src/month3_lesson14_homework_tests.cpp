@@ -34,8 +34,17 @@ TEST_CASE("ioc_container dep register test")
 		}
 	);
 	
-	ioc.resolve<i_command>("ioc.register", std::string("go straight"), move_lambda)->execute();
+	ioc.resolve<i_command>(std::string("ioc.register"), std::string("go straight"), move_lambda)->execute();
 	ioc.resolve<i_command>("go straight", pointer_to_movable)->execute();
 
 	REQUIRE(pointer_to_movable->get_position() == movement_vector({ 5, 8 }));
+
+	const auto int_lambda = std::function<std::shared_ptr<int>()>(
+		[]()
+		{
+			return std::make_shared<int>(1);
+		}
+	);
+	ioc.resolve<i_command>("ioc.register", std::string("int_dependency"), int_lambda)->execute();
+	REQUIRE(*ioc.resolve<int>("int_dependency") == 1);
 }

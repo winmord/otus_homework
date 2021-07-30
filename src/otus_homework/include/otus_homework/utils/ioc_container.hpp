@@ -15,14 +15,25 @@ namespace tank_battle_server
 		{
 			this->container_ = std::make_shared<std::map<std::string, std::any>>();
 		}
+
+		template <class T, typename ...Args>
+		std::shared_ptr<T> resolve(std::string const& ioc_key, std::string const& key, Args ...args)
+		{
+			if (ioc_key == std::string("ioc.register"))
+			{
+				return register_type<T>(key, args...);
+			}
+
+			throw std::runtime_error(ioc_key + " is undefined");
+		}
 		
 		template <class T, typename ...Args>
 		std::shared_ptr<T> resolve(std::string const& key, Args ...args)
 		{
-			if (key == std::string("ioc.register"))
-			{
-				return register_type<T>(args...);
-			}
+			//if (key == std::string("ioc.register"))
+			//{
+			//	return register_type<T>(args...);
+			//}
 
 			if (this->container_->find(key) == this->container_->end())
 			{
@@ -30,7 +41,7 @@ namespace tank_battle_server
 			}
 
 			std::any function = this->container_->at(key);
-			auto dependency = std::any_cast<std::function<std::shared_ptr<T>(Args...)>>(function);
+			auto dependency = std::any_cast<std::function<std::shared_ptr<T>(Args ...)>>(function);
 
 			return dependency(args...);
 		}
@@ -46,7 +57,7 @@ namespace tank_battle_server
 			std::any arguments[arguments_count] = {args...};
 			const auto key = std::any_cast<std::string>(arguments[0]);
 			const auto function = arguments[1];
-
+			
 			return std::make_shared<ioc_register_command>(key, function, this->container_);
 		}
 
