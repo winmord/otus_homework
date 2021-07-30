@@ -48,3 +48,20 @@ TEST_CASE("ioc_container dep register test")
 	ioc.resolve<i_command>("ioc.register", std::string("int_dependency"), int_lambda)->execute();
 	REQUIRE(*ioc.resolve<int>("int_dependency") == 1);
 }
+
+TEST_CASE("ioc_container dep unregister test")
+{
+	ioc_container ioc;
+	
+	const auto int_lambda = std::function<std::shared_ptr<int>()>(
+		[]()
+		{
+			return std::make_shared<int>(1);
+		}
+	);
+	ioc.resolve<i_command>("ioc.register", std::string("int_dependency"), int_lambda)->execute();
+	REQUIRE(*ioc.resolve<int>("int_dependency") == 1);
+
+	ioc.resolve<i_command>("ioc.unregister", std::string("int_dependency"))->execute();
+	REQUIRE_THROWS(ioc.resolve<int>("int_dependency"));
+}

@@ -5,6 +5,7 @@
 #include <string>
 
 #include "otus_homework/commands/ioc_register_command.hpp"
+#include "otus_homework/commands/ioc_unregister_command.hpp"
 
 namespace tank_battle_server
 {
@@ -24,17 +25,17 @@ namespace tank_battle_server
 				return register_type<T>(key, args...);
 			}
 
+			if (ioc_key == std::string("ioc.unregister"))
+			{
+				return unregister_type<T>(key, args...);
+			}
+
 			throw std::runtime_error(ioc_key + " is undefined");
 		}
 		
 		template <class T, typename ...Args>
 		std::shared_ptr<T> resolve(std::string const& key, Args ...args)
 		{
-			//if (key == std::string("ioc.register"))
-			//{
-			//	return register_type<T>(args...);
-			//}
-
 			if (this->container_->find(key) == this->container_->end())
 			{
 				throw std::runtime_error("Dependency is not registered");
@@ -59,6 +60,19 @@ namespace tank_battle_server
 			const auto function = arguments[1];
 			
 			return std::make_shared<ioc_register_command>(key, function, this->container_);
+		}
+
+		template <class T, typename ...Args>
+		std::shared_ptr<T> unregister_type(Args ...args)
+		{
+			const auto arguments_count = sizeof...(args);
+			if (arguments_count < 1)
+				throw std::runtime_error("ioc.unregister must have 1 arguments at least: 1 - string");
+
+			std::any arguments[arguments_count] = { args... };
+			const auto key = std::any_cast<std::string>(arguments[0]);
+
+			return std::make_shared<ioc_unregister_command>(key, this->container_);
 		}
 
 		std::shared_ptr<std::map<std::string, std::any>> container_;
