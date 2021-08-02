@@ -95,5 +95,5 @@ TEST_CASE("ioc_container scopes test")
 	REQUIRE_THROWS(ioc.resolve<i_command>(std::string("scopes.current"), std::string("unexist_scope"))->execute());
 	
 	ioc.resolve<i_command>(std::string("scopes.current"), std::string("new_test_scope"))->execute();
-	REQUIRE(*ioc.resolve<int>(std::string("int_dependency")) == 1);
+	REQUIRE_THROWS(*ioc.resolve<int>(std::string("int_dependency")) == 1);
 }

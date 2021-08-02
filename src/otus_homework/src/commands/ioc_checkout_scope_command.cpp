@@ -11,7 +11,6 @@ namespace tank_battle_server
 
 	void ioc_checkout_scope_command::execute()
 	{
-		current_scope_.reset();
-		current_scope_ = std::make_shared<std::string>(scope_id_);
+		*this->current_scope_ = this->scope_id_;
 	}
 }

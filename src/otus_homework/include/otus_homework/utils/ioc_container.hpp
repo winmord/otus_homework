@@ -4,6 +4,7 @@
 #include <map>
 #include <string>
 
+#include "otus_homework/utils/ioc_storage.hpp"
 #include "otus_homework/commands/ioc_checkout_scope_command.hpp"
 #include "otus_homework/commands/ioc_new_scope_command.hpp"
 #include "otus_homework/commands/ioc_register_command.hpp"
@@ -17,8 +18,7 @@ namespace tank_battle_server
 		ioc_container()
 		{
 			this->current_scope_ = std::make_shared<std::string>("root");
-			this->registered_scopes_ = std::make_shared<std::set<std::string>>();
-			this->registered_scopes_->insert("root");
+			this->container_->insert_scope(this->current_scope_);
 		}
 
 		template <class T, typename ...Args>
@@ -50,12 +50,12 @@ namespace tank_battle_server
 		template <class T, typename ...Args>
 		std::shared_ptr<T> resolve(std::string const& key, Args ...args)
 		{
-			if (container_->find(key) == container_->end())
+			if (!container_->is_dependency_exists(this->current_scope_, key))
 			{
 				throw std::runtime_error("Dependency is not registered");
 			}
 
-			std::any function = container_->at(key);
+			std::any function = container_->get_dependency(this->current_scope_, key);
 			auto dependency = std::any_cast<std::function<std::shared_ptr<T>(Args ...)>>(function);
 
 			return dependency(args...);
@@ -73,7 +73,7 @@ namespace tank_battle_server
 			const auto key = std::any_cast<std::string>(arguments[0]);
 			const auto function = arguments[1];
 
-			return std::make_shared<ioc_register_command>(key, function, this->container_);
+			return std::make_shared<ioc_register_command>(key, function, this->current_scope_, this->container_);
 		}
 
 		template <class T, typename ...Args>
@@ -86,38 +86,31 @@ namespace tank_battle_server
 			std::any arguments[arguments_count] = {args...};
 			const auto key = std::any_cast<std::string>(arguments[0]);
 
-			return std::make_shared<ioc_unregister_command>(key, this->container_);
+			return std::make_shared<ioc_unregister_command>(key, this->current_scope_, this->container_);
 		}
 
 		template <class T>
 		std::shared_ptr<T> new_scope(std::string const& scope_id)
 		{
-			return std::make_shared<ioc_new_scope_command>(scope_id, this->registered_scopes_);
+			return std::make_shared<ioc_new_scope_command>(std::make_shared<std::string>(scope_id), this->container_);
 		}
 
 		template <class T, typename ...Args>
 		std::shared_ptr<T> checkout_scope(Args ...args)
 		{
 			if (sizeof...(args) < 1)
-				throw std::runtime_error(
-					"scope.current must have 1 arguments at least: 1 - string");
+				throw std::runtime_error("scope.current must have 1 arguments at least: 1 - string");
 			std::any checkout_arguments[sizeof...(args)] = {args...};
 
 			const std::string scope_id = std::any_cast<std::string>(checkout_arguments[0]);
 
-			if (this->registered_scopes_->find(scope_id) == this->registered_scopes_->end())
-				throw std::runtime_error(
-					"scope " + scope_id + " does not exist");
+			if (!this->container_->is_scope_exists(std::make_shared<std::string>(scope_id)))
+				throw std::runtime_error("scope " + scope_id + " does not exist");
 
 			return std::make_shared<ioc_checkout_scope_command>(scope_id, this->current_scope_);
 		}
 
-		inline thread_local static
-		std::shared_ptr<std::map<std::string, std::any>> container_ =
-			std::make_shared<std::map<std::string, std::any>>();
-
+		inline thread_local static std::shared_ptr<ioc_storage> container_ = std::make_shared<ioc_storage>();
 		std::shared_ptr<std::string> current_scope_;
-
-		std::shared_ptr<std::set<std::string>> registered_scopes_;
 	};
 }

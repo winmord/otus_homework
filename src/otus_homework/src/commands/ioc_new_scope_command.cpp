@@ -2,15 +2,15 @@
 
 namespace tank_battle_server
 {
-	ioc_new_scope_command::ioc_new_scope_command(std::string scope_id,
-	                                             std::shared_ptr<std::set<std::string>> scopes)
+	ioc_new_scope_command::ioc_new_scope_command(std::shared_ptr<std::string> scope_id,
+	                                             std::shared_ptr<ioc_storage> container)
 		: scope_id_(std::move(scope_id)),
-		  scopes_(std::move(scopes))
+		  container_(std::move(container))
 	{
 	}
 
 	void ioc_new_scope_command::execute()
 	{
-		scopes_->insert(scope_id_);
+		this->container_->insert_scope(this->scope_id_);
 	}
 }

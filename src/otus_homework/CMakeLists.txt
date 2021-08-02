@@ -48,6 +48,7 @@ set(SOURCE_FILES
 	include/otus_homework/interfaces/i_velocity_changable.hpp
 
 	include/otus_homework/utils/ioc_container.hpp
+	include/otus_homework/utils/ioc_storage.hpp
 
 	include/otus_homework/blocking_queue.hpp
 	include/otus_homework/command_executor.hpp
@@ -72,6 +73,8 @@ set(SOURCE_FILES
 	src/commands/move_command.cpp
 	src/commands/rotate_command.cpp
 	src/commands/soft_stop_command.cpp
+
+	src/utils/ioc_storage.cpp
 
 	src/command_executor.cpp
 	src/movement_vector.cpp
