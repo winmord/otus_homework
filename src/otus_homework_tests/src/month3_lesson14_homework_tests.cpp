@@ -9,7 +9,7 @@ using namespace fakeit;
 using namespace tank_battle_server;
 
 
-TEST_CASE("ioc_container dep register test")
+TEST_CASE("ioc_container dependency register test")
 {
 	movement_vector position({12, 5});
 
@@ -50,7 +50,13 @@ TEST_CASE("ioc_container dep register test")
 	REQUIRE(*ioc.resolve<int>(std::string("int_dependency")) == 1);
 }
 
-TEST_CASE("ioc_container dep unregister test")
+TEST_CASE("ioc_container unexisting dependency resolve test")
+{
+	ioc_container ioc;
+	REQUIRE_THROWS(ioc.resolve<int>(std::string("int_dependency")));
+}
+
+TEST_CASE("ioc_container dependency unregister test")
 {
 	ioc_container ioc;
 
