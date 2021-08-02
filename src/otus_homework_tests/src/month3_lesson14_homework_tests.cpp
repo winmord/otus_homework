@@ -1,5 +1,6 @@
 #include <catch2/catch.hpp>
 #include <fakeit.hpp>
+#include <thread>
 
 #include <otus_homework/utils/ioc_container.hpp>
 #include <otus_homework/commands/move_command.hpp>
@@ -33,9 +34,9 @@ TEST_CASE("ioc_container dep register test")
 			return std::make_shared<move_command>(movable);
 		}
 	);
-	
+
 	ioc.resolve<i_command>(std::string("ioc.register"), std::string("go straight"), move_lambda)->execute();
-	ioc.resolve<i_command>("go straight", pointer_to_movable)->execute();
+	ioc.resolve<i_command>(std::string("go straight"), pointer_to_movable)->execute();
 
 	REQUIRE(pointer_to_movable->get_position() == movement_vector({ 5, 8 }));
 
@@ -45,23 +46,54 @@ TEST_CASE("ioc_container dep register test")
 			return std::make_shared<int>(1);
 		}
 	);
-	ioc.resolve<i_command>("ioc.register", std::string("int_dependency"), int_lambda)->execute();
-	REQUIRE(*ioc.resolve<int>("int_dependency") == 1);
+	ioc.resolve<i_command>(std::string("ioc.register"), std::string("int_dependency"), int_lambda)->execute();
+	REQUIRE(*ioc.resolve<int>(std::string("int_dependency")) == 1);
 }
 
 TEST_CASE("ioc_container dep unregister test")
 {
 	ioc_container ioc;
-	
+
 	const auto int_lambda = std::function<std::shared_ptr<int>()>(
 		[]()
 		{
 			return std::make_shared<int>(1);
 		}
 	);
-	ioc.resolve<i_command>("ioc.register", std::string("int_dependency"), int_lambda)->execute();
+	ioc.resolve<i_command>(std::string("ioc.register"), std::string("int_dependency"), int_lambda)->execute();
 	REQUIRE(*ioc.resolve<int>("int_dependency") == 1);
 
-	ioc.resolve<i_command>("ioc.unregister", std::string("int_dependency"))->execute();
-	REQUIRE_THROWS(ioc.resolve<int>("int_dependency"));
+	ioc.resolve<i_command>(std::string("ioc.unregister"), std::string("int_dependency"))->execute();
+	REQUIRE_THROWS(ioc.resolve<int>(std::string("int_dependency")));
+}
+
+TEST_CASE("ioc_container scopes test")
+{
+	ioc_container ioc;
+
+	const auto int_lambda = std::function<std::shared_ptr<int>()>(
+		[]()
+		{
+			return std::make_shared<int>(1);
+		}
+	);
+	ioc.resolve<i_command>(std::string("ioc.register"), std::string("int_dependency"), int_lambda)->execute();
+	REQUIRE(*ioc.resolve<int>(std::string("int_dependency")) == 1);
+	
+	auto other_scope_thread = std::thread([&]()
+		{
+			REQUIRE_THROWS(ioc.resolve<int>(std::string("int_dependency")));
+		}
+	);
+
+	other_scope_thread.join();
+
+	REQUIRE(*ioc.resolve<int>(std::string("int_dependency")) == 1);
+
+	ioc.resolve<i_command>(std::string("scopes.new"), std::string("new_test_scope"))->execute();
+
+	REQUIRE_THROWS(ioc.resolve<i_command>(std::string("scopes.current"), std::string("unexist_scope"))->execute());
+	
+	ioc.resolve<i_command>(std::string("scopes.current"), std::string("new_test_scope"))->execute();
+	REQUIRE(*ioc.resolve<int>(std::string("int_dependency")) == 1);
 }
