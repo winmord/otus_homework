@@ -20,12 +20,6 @@ endif ()
 include_directories(${otus_homework_SOURCE_DIR}/include)
 
 set(SOURCE_FILES
-	include/otus_homework/adapters/fuel_burnable_adapter.hpp
-	include/otus_homework/adapters/fuel_checkable_adapter.hpp
-	include/otus_homework/adapters/movable_adapter.hpp
-	include/otus_homework/adapters/rotatable_adapter.hpp
-	include/otus_homework/adapters/velocity_changable_adapter.hpp
-
 	include/otus_homework/commands/burn_fuel_command.hpp
 	include/otus_homework/commands/change_velocity_command.hpp
 	include/otus_homework/commands/check_fuel_command.hpp
@@ -56,12 +50,6 @@ set(SOURCE_FILES
 	include/otus_homework/movement_vector.hpp
 	include/otus_homework/otus_homework_api.hpp
 
-	src/adapters/fuel_burnable_adapter.cpp
-	src/adapters/fuel_checkable_adapter.cpp
-	src/adapters/movable_adapter.cpp
-	src/adapters/rotatable_adapter.cpp
-	src/adapters/velocity_changable_adapter.cpp
-
 	src/commands/burn_fuel_command.cpp
 	src/commands/change_velocity_command.cpp
 	src/commands/check_fuel_command.cpp
@@ -83,7 +71,23 @@ set(SOURCE_FILES
 	src/movement_vector.cpp
 	)
 
-source_group(TREE ${PROJECT_SOURCE_DIR} FILES ${SOURCE_FILES})
+foreach(SOURCE_FILE IN LISTS SOURCE_FILES)
+	execute_process(
+		COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/../../utils/adapters_generator.exe ${CMAKE_CURRENT_SOURCE_DIR}
+												   ${SOURCE_FILE}
+												   "include/otus_homework/adapters/generated"
+	)
+endforeach()
+
+set_directory_properties(PROPERTIES ADDITIONAL_CLEAN_FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/otus_homework/adapters/generated)
+add_custom_target(clean-all
+	rm -rf "${CMAKE_CURRENT_SOURCE_DIR}/include/otus_homework/adapters/generated/*"
+	COMMAND cmake --build ${CMAKE_BINARY_DIR} --target clean
+)
+
+file(GLOB generated_headers CONFIGURE_DEPENDS "include/otus_homework/adapters/generated/*.hpp")
+
+source_group(TREE ${PROJECT_SOURCE_DIR} FILES ${SOURCE_FILES} ${generated_headers})
 	
-add_library(otus_homework ${SOURCE_FILES})
+add_library(otus_homework ${SOURCE_FILES} ${generated_headers})
 target_link_libraries(otus_homework ${CONAN_LIBS})
