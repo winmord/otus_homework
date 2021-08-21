@@ -52,6 +52,7 @@ set(SOURCE_FILES
 
 	include/otus_homework/blocking_queue.hpp
 	include/otus_homework/command_executor.hpp
+	include/otus_homework/globals.hpp
 	include/otus_homework/movement_vector.hpp
 	include/otus_homework/otus_homework_api.hpp
 
@@ -73,10 +74,12 @@ set(SOURCE_FILES
 	src/commands/move_command.cpp
 	src/commands/rotate_command.cpp
 	src/commands/soft_stop_command.cpp
-
+	
+	src/utils/ioc_container.cpp
 	src/utils/ioc_storage.cpp
 
 	src/command_executor.cpp
+	src/globals.cpp
 	src/movement_vector.cpp
 	)
 
