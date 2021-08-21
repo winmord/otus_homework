@@ -8,6 +8,7 @@
 #include "otus_homework/commands/ioc_new_scope_command.hpp"
 #include "otus_homework/commands/ioc_register_command.hpp"
 #include "otus_homework/commands/ioc_unregister_command.hpp"
+#include "otus_homework/interfaces/i_uobject.hpp"
 
 namespace tank_battle_server
 {
@@ -47,6 +48,22 @@ namespace tank_battle_server
 		}
 
 		template <class T, typename ...Args>
+		std::shared_ptr<T> resolve(std::string const& key, std::shared_ptr<i_uobject> obj, Args ...args)
+		{
+			auto value = std::any_cast<T>(obj->get_value(key));
+			return std::make_shared<T>(value);
+		}
+
+		template <typename ...Args>
+		void resolve(std::string const& key, std::shared_ptr<i_uobject> obj, Args ...args)
+		{
+			const auto arguments_count = sizeof...(args);
+			std::any arguments[arguments_count] = { args... };
+
+			obj->set_value(key, arguments[0]);
+		}
+		
+		template <class T, typename ...Args>
 		std::shared_ptr<T> resolve(std::string const& key, Args ...args)
 		{
 			if (!container_->is_dependency_exists(this->current_scope_, key))
@@ -65,6 +82,12 @@ namespace tank_battle_server
 			{
 				throw std::runtime_error("can not cast dependency");
 			}		
+		}
+
+		~ioc_container()
+		{
+			container_.reset();
+			current_scope_.reset();
 		}
 
 	private:
@@ -143,7 +166,7 @@ namespace tank_battle_server
 			return std::make_shared<ioc_checkout_scope_command>(scope_id, this->current_scope_);
 		}
 
-		inline thread_local static std::shared_ptr<ioc_storage> container_ = std::make_shared<ioc_storage>();
+		thread_local static std::shared_ptr<ioc_storage> container_;
 		std::shared_ptr<std::string> current_scope_;
 	};
 }
