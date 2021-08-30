@@ -38,8 +38,12 @@ set(SOURCE_FILES
 	include/otus_homework/interfaces/i_fuel_checkable.hpp
 	include/otus_homework/interfaces/i_movable.hpp
 	include/otus_homework/interfaces/i_rotatable.hpp
+	include/otus_homework/interfaces/i_state.hpp
 	include/otus_homework/interfaces/i_uobject.hpp
 	include/otus_homework/interfaces/i_velocity_changable.hpp
+
+	include/otus_homework/states/soft_stop_state.hpp
+	include/otus_homework/states/usual_state.hpp
 
 	include/otus_homework/utils/ioc_container.hpp
 	include/otus_homework/utils/ioc_storage.hpp
@@ -63,6 +67,9 @@ set(SOURCE_FILES
 	src/commands/rotate_command.cpp
 	src/commands/soft_stop_command.cpp
 	
+	src/states/soft_stop_state.cpp
+	src/states/usual_state.cpp
+
 	src/utils/ioc_container.cpp
 	src/utils/ioc_storage.cpp
 
