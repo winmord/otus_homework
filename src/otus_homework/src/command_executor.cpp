@@ -4,8 +4,9 @@
 
 namespace tank_battle_server
 {
-	command_executor::command_executor(std::shared_ptr<blocking_queue<std::shared_ptr<i_command>>> command_queue)
-		: command_queue_(std::move(command_queue))
+	command_executor::command_executor(std::shared_ptr<std::shared_ptr<i_state>> state,
+	                                   std::shared_ptr<blocking_queue<std::shared_ptr<i_command>>> command_queue)
+		: state_(std::move(state)), command_queue_(std::move(command_queue))
 	{
 		start();
 	}
@@ -27,23 +28,12 @@ namespace tank_battle_server
 
 		this->command_executor_thread_ = std::thread([&]()
 			{
-				while (this->is_started_)
+				while (*this->state_ != nullptr)
 				{
-					try
-					{
-						const auto cmd = this->command_queue_->pop();
-						cmd->execute();
-					}
-					catch (std::exception& exc)
-					{
-						const auto* const what = exc.what();
-						
-						process_hard_stop(what);
-						process_soft_stop(what);
-					}
-
-					check_soft_stop();
+					this->state_->get()->to();
 				}
+
+				this->is_started_ = false;
 			}
 		);
 	}

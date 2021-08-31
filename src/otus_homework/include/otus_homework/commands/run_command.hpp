@@ -8,17 +8,16 @@
 
 namespace tank_battle_server
 {
-	class soft_stop_state : public i_state
+	class run_command : public i_command
 	{
 	public:
-		soft_stop_state(std::shared_ptr<std::shared_ptr<i_state>> state,
-		                std::shared_ptr<blocking_queue<std::shared_ptr<i_command>>> command_queue);
+		explicit run_command(std::shared_ptr<std::shared_ptr<i_state>> state,
+		                     std::shared_ptr<blocking_queue<std::shared_ptr<i_command>>> command_queue);
 
-		void to() override;
+		void execute() override;
 
 	private:
 		std::shared_ptr<std::shared_ptr<i_state>> state_;
 		std::shared_ptr<blocking_queue<std::shared_ptr<i_command>>> command_queue_;
-		double total_execution_time_{0};
 	};
 }

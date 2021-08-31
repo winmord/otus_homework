@@ -14,6 +14,11 @@ namespace tank_battle_server
 			: obj_(std::move(obj))
 		{}
 
+		void to() override
+		{
+			
+		}
+
 	private:
 		std::shared_ptr<i_uobject> obj_;
 	};
