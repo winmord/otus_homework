@@ -1,11 +1,14 @@
 #include "otus_homework/commands/hard_stop_command.hpp"
 
-#include <stdexcept>
-
 namespace tank_battle_server
 {
+	hard_stop_command::hard_stop_command(std::shared_ptr<std::shared_ptr<i_state>> state)
+		: state_(std::move(state))
+	{
+	}
+
 	void hard_stop_command::execute()
 	{
-		throw std::runtime_error("hard stop");
+		*this->state_ = nullptr;
 	}
 }

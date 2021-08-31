@@ -8,6 +8,9 @@
 #include <otus_homework/commands/soft_stop_command.hpp>
 #include <otus_homework/blocking_queue.hpp>
 #include <otus_homework/command_executor.hpp>
+#include <otus_homework/states/usual_state.hpp>
+
+#include "include/common_test_functions.hpp"
 
 using namespace fakeit;
 using namespace tank_battle_server;
@@ -34,9 +37,12 @@ TEST_CASE("command_executor is running test")
 
 	command_queue->push(pointer_to_command);
 
-	command_executor cmd_executor(command_queue);
+	auto state = std::make_shared<usual_state>(command_queue);
+	auto pointer_to_state = std::make_shared<std::shared_ptr<i_state>>(state);
 
-	const auto hard_stop = std::make_shared<hard_stop_command>();
+	command_executor cmd_executor(pointer_to_state, command_queue);
+
+	const auto hard_stop = std::make_shared<hard_stop_command>(pointer_to_state);
 	command_queue->push(hard_stop);
 
 	std::mutex m;
@@ -49,33 +55,6 @@ TEST_CASE("command_executor is running test")
 	);
 
 	REQUIRE(is_executed);
-}
-
-void check_command_executor_finish(command_executor const& cmd_executor)
-{
-	auto executor_is_started{true};
-	std::condition_variable executor_finish_condition;
-
-	auto executor_finish_checker = std::thread([&]()
-		{
-			while (executor_is_started)
-			{
-				executor_is_started = cmd_executor.is_started();
-				if (!executor_is_started) executor_finish_condition.notify_one();
-			}
-		}
-	);
-
-	std::mutex m;
-	std::unique_lock<std::mutex> locker(m);
-
-	executor_finish_condition.wait(locker, [&]()
-	                               {
-		                               return !executor_is_started;
-	                               }
-	);
-
-	if (executor_finish_checker.joinable()) executor_finish_checker.join();
 }
 
 TEST_CASE("command_executor hard_stop test")
@@ -99,9 +78,12 @@ TEST_CASE("command_executor hard_stop test")
 		command_queue->push(pointer_to_command);
 	}
 
-	command_executor cmd_executor(command_queue);
+	auto state = std::make_shared<usual_state>(command_queue);
+	auto pointer_to_state = std::make_shared<std::shared_ptr<i_state>>(state);
 
-	const auto hard_stop = std::make_shared<hard_stop_command>();
+	command_executor cmd_executor(pointer_to_state, command_queue);
+
+	const auto hard_stop = std::make_shared<hard_stop_command>(pointer_to_state);
 	command_queue->push(hard_stop);
 	command_queue->push(pointer_to_command);
 
@@ -132,9 +114,12 @@ TEST_CASE("command_executor soft_stop test")
 		command_queue->push(pointer_to_command);
 	}
 
-	const command_executor cmd_executor(command_queue);
+	auto state = std::make_shared<usual_state>(command_queue);
+	auto pointer_to_state = std::make_shared<std::shared_ptr<i_state>>(state);
 
-	const auto soft_stop = std::make_shared<soft_stop_command>();
+	const command_executor cmd_executor(pointer_to_state, command_queue);
+
+	const auto soft_stop = std::make_shared<soft_stop_command>(pointer_to_state, command_queue);
 	command_queue->push(soft_stop);
 	command_queue->push(pointer_to_command);
 
@@ -165,9 +150,12 @@ TEST_CASE("command_executor soft_stop by timeout test")
 		command_queue->push(pointer_to_command);
 	}
 
-	const command_executor cmd_executor(command_queue);
+	auto state = std::make_shared<usual_state>(command_queue);
+	auto pointer_to_state = std::make_shared<std::shared_ptr<i_state>>(state);
 
-	const auto soft_stop = std::make_shared<soft_stop_command>();
+	const command_executor cmd_executor(pointer_to_state, command_queue);
+
+	const auto soft_stop = std::make_shared<soft_stop_command>(pointer_to_state, command_queue);
 	command_queue->push(soft_stop);
 	command_queue->push(pointer_to_command);
 	for (auto command_number = 0; command_number < commands_count + 10; command_number++)
