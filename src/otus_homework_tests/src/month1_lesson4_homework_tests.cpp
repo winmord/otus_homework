@@ -8,8 +8,9 @@
 #include <otus_homework/commands/soft_stop_command.hpp>
 #include <otus_homework/blocking_queue.hpp>
 #include <otus_homework/command_executor.hpp>
+#include <otus_homework/states/usual_state.hpp>
 
-#include "otus_homework/states/usual_state.hpp"
+#include "include/common_test_functions.hpp"
 
 using namespace fakeit;
 using namespace tank_battle_server;
@@ -54,33 +55,6 @@ TEST_CASE("command_executor is running test")
 	);
 
 	REQUIRE(is_executed);
-}
-
-void check_command_executor_finish(command_executor const& cmd_executor)
-{
-	auto executor_is_started{true};
-	std::condition_variable executor_finish_condition;
-
-	auto executor_finish_checker = std::thread([&]()
-		{
-			while (executor_is_started)
-			{
-				executor_is_started = cmd_executor.is_started();
-				if (!executor_is_started) executor_finish_condition.notify_one();
-			}
-		}
-	);
-
-	std::mutex m;
-	std::unique_lock<std::mutex> locker(m);
-
-	executor_finish_condition.wait(locker, [&]()
-	                               {
-		                               return !executor_is_started;
-	                               }
-	);
-
-	if (executor_finish_checker.joinable()) executor_finish_checker.join();
 }
 
 TEST_CASE("command_executor hard_stop test")

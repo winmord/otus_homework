@@ -13,12 +13,16 @@ include_directories(${otus_homework_SOURCE_DIR}/include)
 include_directories(${otus_homework_tests_SOURCE_DIR}/include)
 
 set(SOURCE_FILES
+	src/include/common_test_functions.hpp
+
+	src/common_test_functions.cpp
 	src/main.cpp
 	src/month1_lesson3_homework_tests.cpp
 	src/month1_lesson4_homework_tests.cpp
 	src/month3_lesson12_homework_tests.cpp
 	src/month3_lesson14_homework_tests.cpp
 	src/month3_lesson15_homework_tests.cpp
+	src/month3_lesson23_homework_tests.cpp
    )
 	
 source_group(TREE ${PROJECT_SOURCE_DIR} FILES ${SOURCE_FILES})
