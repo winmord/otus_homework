@@ -1,4 +1,5 @@
 #pragma once
+
 #include <memory>
 
 #include "otus_homework/blocking_queue.hpp"
@@ -7,11 +8,11 @@
 
 namespace tank_battle_server
 {
-	class soft_stop_command : public i_command
+	class run_command : public i_command
 	{
 	public:
-		explicit soft_stop_command(std::shared_ptr<std::shared_ptr<i_state>> state,
-		                           std::shared_ptr<blocking_queue<std::shared_ptr<i_command>>> command_queue);
+		explicit run_command(std::shared_ptr<std::shared_ptr<i_state>> state,
+		                     std::shared_ptr<blocking_queue<std::shared_ptr<i_command>>> command_queue);
 
 		void execute() override;
 

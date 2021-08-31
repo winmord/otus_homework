@@ -30,7 +30,9 @@ set(SOURCE_FILES
 	include/otus_homework/commands/ioc_unregister_command.hpp
 	include/otus_homework/commands/macro_command.hpp
 	include/otus_homework/commands/move_command.hpp
+	include/otus_homework/commands/move_to_command.hpp
 	include/otus_homework/commands/rotate_command.hpp
+	include/otus_homework/commands/run_command.hpp
 	include/otus_homework/commands/soft_stop_command.hpp
 
 	include/otus_homework/interfaces/i_command.hpp
@@ -38,8 +40,13 @@ set(SOURCE_FILES
 	include/otus_homework/interfaces/i_fuel_checkable.hpp
 	include/otus_homework/interfaces/i_movable.hpp
 	include/otus_homework/interfaces/i_rotatable.hpp
+	include/otus_homework/interfaces/i_state.hpp
 	include/otus_homework/interfaces/i_uobject.hpp
 	include/otus_homework/interfaces/i_velocity_changable.hpp
+
+	include/otus_homework/states/move_to_state.hpp
+	include/otus_homework/states/soft_stop_state.hpp
+	include/otus_homework/states/usual_state.hpp
 
 	include/otus_homework/utils/ioc_container.hpp
 	include/otus_homework/utils/ioc_storage.hpp
@@ -60,9 +67,15 @@ set(SOURCE_FILES
 	src/commands/ioc_unregister_command.cpp
 	src/commands/macro_command.cpp
 	src/commands/move_command.cpp
+	src/commands/move_to_command.cpp
 	src/commands/rotate_command.cpp
+	src/commands/run_command.cpp
 	src/commands/soft_stop_command.cpp
 	
+	src/states/move_to_state.cpp
+	src/states/soft_stop_state.cpp
+	src/states/usual_state.cpp
+
 	src/utils/ioc_container.cpp
 	src/utils/ioc_storage.cpp
 
