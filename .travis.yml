@@ -17,8 +17,6 @@ install:
 - sudo pip3 install conan_package_tools
 - conan user
 script:
-- export CC=gcc-9
-- export CXX=g++-9
 - conan install .
 - cmake .
 - make
