@@ -23,6 +23,7 @@ set(SOURCE_FILES
 	src/month3_lesson14_homework_tests.cpp
 	src/month3_lesson15_homework_tests.cpp
 	src/month3_lesson23_homework_tests.cpp
+	src/month3_lesson27_homework_tests.cpp
    )
 	
 source_group(TREE ${PROJECT_SOURCE_DIR} FILES ${SOURCE_FILES})
