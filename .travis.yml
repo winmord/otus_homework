@@ -2,7 +2,6 @@ dist: xenial
 language: cpp
 compiler: 
 - clang
-- gcc
 addons:
   apt:
     sources:
