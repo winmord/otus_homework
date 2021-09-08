@@ -24,6 +24,7 @@ set(SOURCE_FILES
 	include/otus_homework/commands/change_velocity_command.hpp
 	include/otus_homework/commands/check_fuel_command.hpp
 	include/otus_homework/commands/hard_stop_command.hpp
+	include/otus_homework/commands/initialize_tank_command.hpp
 	include/otus_homework/commands/ioc_checkout_scope_command.hpp
 	include/otus_homework/commands/ioc_new_scope_command.hpp
 	include/otus_homework/commands/ioc_register_command.hpp
@@ -33,6 +34,9 @@ set(SOURCE_FILES
 	include/otus_homework/commands/move_to_command.hpp
 	include/otus_homework/commands/rotate_command.hpp
 	include/otus_homework/commands/run_command.hpp
+	include/otus_homework/commands/setup_tank_direction_command.hpp
+	include/otus_homework/commands/setup_tank_owner_command.hpp
+	include/otus_homework/commands/setup_tank_position_command.hpp
 	include/otus_homework/commands/soft_stop_command.hpp
 
 	include/otus_homework/interfaces/i_command.hpp
@@ -61,6 +65,7 @@ set(SOURCE_FILES
 	src/commands/change_velocity_command.cpp
 	src/commands/check_fuel_command.cpp
 	src/commands/hard_stop_command.cpp
+	src/commands/initialize_tank_command.cpp
 	src/commands/ioc_checkout_scope_command.cpp
 	src/commands/ioc_new_scope_command.cpp
 	src/commands/ioc_register_command.cpp
@@ -70,6 +75,9 @@ set(SOURCE_FILES
 	src/commands/move_to_command.cpp
 	src/commands/rotate_command.cpp
 	src/commands/run_command.cpp
+	src/commands/setup_tank_direction_command.cpp
+	src/commands/setup_tank_owner_command.cpp
+	src/commands/setup_tank_position_command.cpp
 	src/commands/soft_stop_command.cpp
 	
 	src/states/move_to_state.cpp
